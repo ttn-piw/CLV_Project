@@ -19,8 +19,11 @@ export class AuthorsController {
   private readonly logger = new Logger(AuthorsController.name);
 
   @Post()
-  create(@Body() createAuthorDto: CreateAuthorDto) {
-    return this.authorsService.create(createAuthorDto);
+  async create(@Body() createAuthorDto: CreateAuthorDto) {
+    const newAuth = await this.authorsService.create(createAuthorDto);
+    if (newAuth === null) return new ApiResponse(400, 'Invalid input', null);
+
+    return new ApiResponse(200, 'Create new author', newAuth);
   }
 
   @Get()
@@ -34,8 +37,11 @@ export class AuthorsController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.authorsService.findOne(+id);
+  async findOne(@Param('id') id: number) {
+    const author = await this.authorsService.findOne(id);
+    const code = author !== null ? 200 : 500;
+    const message = code === 200 ? 'Successfully!' : 'Something failed!';
+    return new ApiResponse(code, message, author);
   }
 
   @Patch(':id')
@@ -44,7 +50,12 @@ export class AuthorsController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.authorsService.remove(+id);
+  async remove(@Param('id') id: number) {
+    const checkAuth = await this.authorsService.findOne(id);
+    if (checkAuth === null)
+      return new ApiResponse(400, 'Author not exist', null);
+
+    await this.authorsService.remove(id);
+    return new ApiResponse(200, 'Author deleted', checkAuth);
   }
 }

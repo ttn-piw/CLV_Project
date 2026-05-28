@@ -12,23 +12,24 @@ export class AuthorsService {
     private readonly authorRepository: Repository<Author>,
   ) {}
 
-  create(createAuthorDto: CreateAuthorDto) {
-    return 'This action adds a new author';
+  async create(createAuthorDto: CreateAuthorDto) {
+    const newAuthor = this.authorRepository.create(createAuthorDto);
+    return await this.authorRepository.save(newAuthor);
   }
 
   async findAll() {
     return await this.authorRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} author`;
+  async findOne(id: number) {
+    return await this.authorRepository.findOneBy({ id: id });
   }
 
   update(id: number, updateAuthorDto: UpdateAuthorDto) {
     return `This action updates a #${id} author`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} author`;
+  async remove(id: number) {
+    return await this.authorRepository.delete({ id: id });
   }
 }
